@@ -1,0 +1,46 @@
+- name: Add hosts
+  hosts: all
+  become: yes
+  
+  tasks:
+  - name: Add master node to /etc/hosts
+    lineinfile:
+      path: /etc/hosts
+      line: 10.0.0.10 master-node
+      
+  - name: Add worker node 1 to /etc/hosts
+    lineinfile:
+      path: /etc/hosts
+      line: 10.0.0.11 worker-node01
+
+  - name: Add worker node 2 to /etc/hosts
+    lineinfile:
+      path: /etc/hosts
+      line: 10.0.0.12 worker-node02
+
+  - name: Add gitlab host to /etc/hosts
+    lineinfile:
+      path: /etc/hosts
+      line: 10.0.0.13 gitlab
+
+- name: Install kubernetes
+  hosts: k8s_hosts
+  become: yes
+  
+  tasks:
+  - name: Install Kubernetes
+    include_tasks:
+      file: all-k8s.yml
+      
+  handlers:
+    - name: docker status
+      service: name=docker state=started
+
+- name: Test Playbook
+  hosts: k8s_masters
+  
+  tasks:
+  - name: Test Message
+    debug:
+      msg:
+      - "Oh, Yes!"
